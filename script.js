@@ -570,6 +570,9 @@ function startPerformance(){
 
     running = true;
 
+    // デバッグ用
+    playSound1();
+
     // スタート画面を消す
     startScreen.style.display = "none";
 
