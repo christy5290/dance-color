@@ -126,13 +126,13 @@ const scenes = [
     },
 
     {
-        name:"止まれ",
+        name:"止",
 
         color:"#ffffff",
 
-        text:"止まれ",
+        text:"止",
 
-        textColor:"red"
+        textColor:"black"
 
     }
 
