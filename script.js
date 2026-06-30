@@ -14,13 +14,13 @@
 const TITLE_TIME = 15;
 
 // 白背景
-const WHITE_TIME = 2 * 60;
+const WHITE1_TIME = 2 * 60;
 
 // 黒画面①
 const BLACK1_TIME = 30;
 
 // 白背景
-const WHITE_TIME = 5 * 60;
+const WHITE2_TIME = 5 * 60;
 
 // ランダム色
 const RANDOM_COLOR_TIME = 5 * 60;
@@ -616,7 +616,7 @@ function startPerformance(){
 
         blackScreen();
 
-    }, sec(TITLE_TIME + WHITE_TIME));
+    }, sec(TITLE_TIME + WHITE1_TIME));
 
 
 
@@ -632,7 +632,7 @@ function startPerformance(){
 
     }, sec(
         TITLE_TIME +
-        WHITE_TIME +
+        WHITE1_TIME +
         BLACK1_TIME
     ));
 
@@ -652,7 +652,7 @@ function startPerformance(){
 
     }, sec(
         TITLE_TIME +
-        WHITE_TIME +
+        WHITE1_TIME +
         BLACK1_TIME +
         RANDOM_COLOR_TIME
     ));
@@ -671,7 +671,7 @@ function startPerformance(){
 
     }, sec(
         TITLE_TIME +
-        WHITE_TIME +
+        WHITE1_TIME +
         BLACK1_TIME +
         RANDOM_COLOR_TIME +
         BLACK2_TIME
@@ -695,7 +695,7 @@ function startPerformance(){
 
     }, sec(
         TITLE_TIME +
-        WHITE_TIME +
+        WHITE1_TIME +
         BLACK1_TIME +
         RANDOM_COLOR_TIME +
         BLACK2_TIME +
