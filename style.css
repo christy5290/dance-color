@@ -1,10 +1,298 @@
-html, body {
+/* =====================================
+   全体設定
+===================================== */
+
+html,
+body{
+    width:100%;
+    height:100%;
+    margin:0;
+    overflow:hidden;
+
+    background:#ffffff;
+
+    font-family:
+    "Yu Mincho",
+    "Hiragino Mincho ProN",
+    serif;
+}
+
+
+/* =====================================
+   背景
+===================================== */
+
+#background{
+
+    position:fixed;
+
+    top:0;
+    left:0;
 
     width:100%;
     height:100%;
 
-    margin:0;
+    background:#ffffff;
+
+    transition:
+        background-color 2.5s ease,
+        opacity 4s ease;
+
+    opacity:1;
+
+    z-index:0;
+
+}
+
+
+/* =====================================
+   タイトル
+===================================== */
+
+#titleScreen{
+
+    position:absolute;
+
+    width:100%;
+    height:100%;
+
+    display:flex;
+
+    justify-content:center;
+    align-items:center;
+
+    z-index:5;
+
+    transition:opacity 3s ease;
+
+}
+
+
+#titleScreen h1{
+
+    font-size:80px;
+
+    letter-spacing:0.25em;
+
+    font-weight:400;
+
+    color:#000000;
+
+}
+
+
+/* =====================================
+   ランダム表示文字
+===================================== */
+
+#message{
+
+    position:absolute;
+
+    width:100%;
+    height:100%;
+
+    display:flex;
+
+    justify-content:center;
+    align-items:center;
+
+    font-size:180px;
+
+    font-weight:bold;
+
+    color:red;
+
+    opacity:0;
+
+    transition:opacity 2s ease;
+
+    pointer-events:none;
+
+    z-index:10;
+
+}
+
+
+/* =====================================
+   スタート画面
+===================================== */
+
+#startScreen{
+
+    position:absolute;
+
+    width:100%;
+    height:100%;
+
+    display:flex;
+
+    flex-direction:column;
+
+    justify-content:center;
+    align-items:center;
 
     background:white;
+
+    z-index:100;
+
+}
+
+
+#startButton{
+
+    font-size:34px;
+
+    padding:
+        20px
+        60px;
+
+    border:none;
+
+    cursor:pointer;
+
+    background:black;
+
+    color:white;
+
+    transition:0.3s;
+
+}
+
+
+#startButton:hover{
+
+    background:#444;
+
+}
+
+
+#startScreen p{
+
+    margin-top:35px;
+
+    font-size:22px;
+
+    text-align:center;
+
+    line-height:1.8;
+
+}
+
+
+/* =====================================
+   フェード用
+===================================== */
+
+.fadeOut{
+
+    opacity:0;
+
+}
+
+
+.fadeIn{
+
+    opacity:1;
+
+}
+
+
+/* =====================================
+   完全な黒画面
+===================================== */
+
+.black{
+
+    background:#000000 !important;
+
+}
+
+
+/* =====================================
+   白画面
+===================================== */
+
+.white{
+
+    background:#ffffff !important;
+
+}
+
+
+/* =====================================
+   ランダム色
+===================================== */
+
+.red{
+
+    background:#ff0000 !important;
+
+}
+
+.blue{
+
+    background:#cfeeff !important;
+
+}
+
+.green{
+
+    background:#dcffd5 !important;
+
+}
+
+.yellow{
+
+    background:#fff8b5 !important;
+
+}
+
+
+/* =====================================
+   止まれ
+===================================== */
+
+.stop{
+
+    opacity:1 !important;
+
+}
+
+
+/* =====================================
+   白背景が呼吸する演出
+===================================== */
+
+@keyframes breathing{
+
+    0%{
+
+        opacity:1;
+
+    }
+
+    50%{
+
+        opacity:0.70;
+
+    }
+
+    100%{
+
+        opacity:1;
+
+    }
+
+}
+
+
+.breath{
+
+    animation:
+        breathing
+        10s
+        ease-in-out
+        infinite;
 
 }
