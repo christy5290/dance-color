@@ -270,7 +270,7 @@ function blackScreen(){
 
     hideMessage();
 
-    setBackground("#000000");
+    background.className = "black";
 
 }
 
@@ -284,7 +284,7 @@ function whiteScreen(){
 
     hideMessage();
 
-    setBackground("#ffffff");
+    background.className = "white";
 
 }
 
