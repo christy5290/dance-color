@@ -1,14 +1,65 @@
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
-<meta charset="UTF-8">
-<title>Dance Color</title>
-<link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>身体の可能性</title>
+
+    <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
-<script src="script.js"></script>
+    <!-- 背景 -->
+    <div id="background"></div>
+
+    <!-- タイトル -->
+    <div id="titleScreen">
+        <h1>身体の可能性</h1>
+    </div>
+
+    <!-- ランダム表示用（止まれ等） -->
+    <div id="message"></div>
+
+    <!-- 開始ボタン -->
+    <div id="startScreen">
+
+        <button id="startButton">
+            START
+        </button>
+
+        <p>
+            ボタンを押すと作品が始まります。<br>
+            F11で全画面表示にしてから開始してください。
+        </p>
+
+    </div>
+
+    <!-- 音声 -->
+    <audio id="bell" preload="auto">
+        <source src="sounds/bell.mp3" type="audio/mpeg">
+    </audio>
+
+    <audio id="sound1" preload="auto">
+        <source src="sounds/sound1.mp3" type="audio/mpeg">
+    </audio>
+
+    <audio id="sound2" preload="auto">
+        <source src="sounds/sound2.mp3" type="audio/mpeg">
+    </audio>
+
+    <audio id="sound3" preload="auto">
+        <source src="sounds/sound3.mp3" type="audio/mpeg">
+    </audio>
+
+    <audio id="sound4" preload="auto">
+        <source src="sounds/sound4.mp3" type="audio/mpeg">
+    </audio>
+
+    <script src="script.js"></script>
 
 </body>
+
 </html>
