@@ -618,6 +618,17 @@ function startPerformance(){
 
     }, sec(TITLE_TIME + WHITE1_TIME));
 
+setTimeout(() => {
+
+    whiteScreen();
+
+    startBreathing();
+
+}, sec(
+    TITLE_TIME +
+    WHITE1_TIME +
+    BLACK1_TIME
+));
 
 
     //==============================
@@ -625,6 +636,8 @@ function startPerformance(){
     //==============================
 
     setTimeout(() => {
+
+        stopBreathing();
 
         playBell();
 
@@ -655,7 +668,7 @@ function startPerformance(){
         TITLE_TIME +
         WHITE1_TIME +
         BLACK1_TIME +
-        WHITE2_TIME
+        WHITE2_TIME+
         RANDOM_COLOR_TIME
     ));
 
@@ -675,7 +688,7 @@ function startPerformance(){
         TITLE_TIME +
         WHITE1_TIME +
         BLACK1_TIME +
-        WHITE2_TIME
+        WHITE2_TIME+
         RANDOM_COLOR_TIME +
         BLACK2_TIME
     ));
@@ -700,7 +713,7 @@ function startPerformance(){
         TITLE_TIME +
         WHITE1_TIME +
         BLACK1_TIME +
-        WHITE2_TIME
+        WHITE2_TIME+
         RANDOM_COLOR_TIME +
         BLACK2_TIME +
         FINAL_TIME
