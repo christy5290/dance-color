@@ -564,20 +564,21 @@ function stopRandomSounds(){
 // タイムライン
 //==================================================
 
-function startPerformance(){
+function playSound1(){
 
-    if(running) return;
+    console.log("sound1再生");
 
-    running = true;
+    sound1.currentTime = 0;
 
-    // デバッグ用
-    playSound1();
+    sound1.play()
+        .then(() => {
+            console.log("再生成功");
+        })
+        .catch((e) => {
+            console.error("再生失敗", e);
+        });
 
-    // スタート画面を消す
-    startScreen.style.display = "none";
-
-    // 初期状態
-    whiteScreen();
+}
 
     //==============================
     // 0～30秒
