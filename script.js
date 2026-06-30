@@ -11,13 +11,16 @@
 //==================================================
 
 // タイトル表示
-const TITLE_TIME = 30;
+const TITLE_TIME = 15;
 
 // 白背景
-const WHITE_TIME = 15 * 60;
+const WHITE_TIME = 2 * 60;
 
 // 黒画面①
 const BLACK1_TIME = 30;
+
+// 白背景
+const WHITE_TIME = 5 * 60;
 
 // ランダム色
 const RANDOM_COLOR_TIME = 5 * 60;
