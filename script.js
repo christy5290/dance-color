@@ -580,6 +580,18 @@ function playSound1(){
 
 }
 
+function startPerformance(){
+
+    if(running) return;
+
+    running = true;
+
+    playSound1(); // デバッグ用
+
+    startScreen.style.display = "none";
+
+    whiteScreen();
+
     //==============================
     // 0～30秒
     // タイトル
