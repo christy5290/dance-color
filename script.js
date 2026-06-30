@@ -564,82 +564,56 @@ function stopRandomSounds(){
 // タイムライン
 //==================================================
 
-function playSound1(){
-
-    console.log("sound1再生");
-
-    sound1.currentTime = 0;
-
-    sound1.play()
-        .then(() => {
-            console.log("再生成功");
-        })
-        .catch((e) => {
-            console.error("再生失敗", e);
-        });
-
-}
-
 function startPerformance(){
 
     if(running) return;
 
     running = true;
 
-    playSound1(); // デバッグ用
+    // デバッグ用（開始直後に音）
+    playSound1();
 
+    // スタート画面を消す
     startScreen.style.display = "none";
 
+    // 白画面
     whiteScreen();
 
     //==============================
-    // 0～30秒
-    // タイトル
+    // タイトル終了
     //==============================
 
-    setTimeout(()=>{
+    setTimeout(() => {
 
         hideTitle();
 
-    },sec(TITLE_TIME));
+    }, sec(TITLE_TIME));
 
 
 
     //==============================
-    // 30秒後
     // 呼吸開始
     //==============================
 
-    setTimeout(()=>{
+    setTimeout(() => {
 
         startBreathing();
 
-    },sec(TITLE_TIME)+3000);
+    }, sec(TITLE_TIME) + 3000);
 
 
 
     //==============================
-    // 15分30秒
-    // 呼吸終了
+    // 白背景終了
     //==============================
 
-    setTimeout(()=>{
+    setTimeout(() => {
 
         stopBreathing();
 
-    },sec(TITLE_TIME+WHITE_TIME));
-
-
-
-    //==============================
-    // 黒画面①
-    //==============================
-
-    setTimeout(()=>{
-
         blackScreen();
 
-    },sec(TITLE_TIME+WHITE_TIME));
+    }, sec(TITLE_TIME + WHITE_TIME));
 
 
 
@@ -647,13 +621,17 @@ function startPerformance(){
     // ベル＋ランダム色
     //==============================
 
-    setTimeout(()=>{
+    setTimeout(() => {
 
         playBell();
 
         startRandomColors();
 
-    },sec(TITLE_TIME+WHITE_TIME+BLACK1_TIME));
+    }, sec(
+        TITLE_TIME +
+        WHITE_TIME +
+        BLACK1_TIME
+    ));
 
 
 
@@ -661,7 +639,7 @@ function startPerformance(){
     // ランダム色終了
     //==============================
 
-    setTimeout(()=>{
+    setTimeout(() => {
 
         stopRandomColors();
 
@@ -669,13 +647,11 @@ function startPerformance(){
 
         playSound1();
 
-    },sec(
-
-        TITLE_TIME+
-        WHITE_TIME+
-        BLACK1_TIME+
+    }, sec(
+        TITLE_TIME +
+        WHITE_TIME +
+        BLACK1_TIME +
         RANDOM_COLOR_TIME
-
     ));
 
 
@@ -684,20 +660,18 @@ function startPerformance(){
     // 最後の白画面
     //==============================
 
-    setTimeout(()=>{
+    setTimeout(() => {
 
         whiteScreen();
 
         startRandomSounds();
 
-    },sec(
-
-        TITLE_TIME+
-        WHITE_TIME+
-        BLACK1_TIME+
-        RANDOM_COLOR_TIME+
+    }, sec(
+        TITLE_TIME +
+        WHITE_TIME +
+        BLACK1_TIME +
+        RANDOM_COLOR_TIME +
         BLACK2_TIME
-
     ));
 
 
@@ -706,26 +680,26 @@ function startPerformance(){
     // 終了
     //==============================
 
-    setTimeout(()=>{
+    setTimeout(() => {
 
         stopRandomSounds();
 
         whiteScreen();
 
-        running=false;
+        running = false;
 
         alert("作品が終了しました");
 
-    },sec(
-
-        TITLE_TIME+
-        WHITE_TIME+
-        BLACK1_TIME+
-        RANDOM_COLOR_TIME+
-        BLACK2_TIME+
+    }, sec(
+        TITLE_TIME +
+        WHITE_TIME +
+        BLACK1_TIME +
+        RANDOM_COLOR_TIME +
+        BLACK2_TIME +
         FINAL_TIME
-
     ));
+
+}
 //==================================================
 // Part4
 // スタート・終了・全画面
