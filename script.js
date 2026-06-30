@@ -14,7 +14,7 @@
 const TITLE_TIME = 15;
 
 // 白背景
-const WHITE1_TIME = 2 * 60;
+const WHITE1_TIME = 1 * 60;
 
 // 黒画面①
 const BLACK1_TIME = 30;
