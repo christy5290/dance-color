@@ -1,6 +1,6 @@
 //==================================================
-// 身体の可能性（改修版：状態管理エンジン）
-// script.js
+// 身体の可能性（改修版：安定化エンジン）
+// PART 1: 基本設定
 //==================================================
 
 
@@ -69,9 +69,8 @@ let state = "IDLE";
 let startTime = 0;
 let rafId = null;
 
-let colorTimer = null;
-let soundTimer = null;
-let breathingTimer = null;
+// タイマー管理（安全化）
+let timers = [];
 
 let SPEED = 1;
 
@@ -86,8 +85,24 @@ function random(min, max){
 function sec(v){
     return v * 1000 / SPEED;
 }
+
+// タイマー管理追加
+function addTimer(id){
+    timers.push(id);
+}
+
+function clearAllTimers(){
+    timers.forEach(clearTimeout);
+    timers = [];
+}
+
+//==================================================
+// PART 2: 背景・UI・メッセージ
+//==================================================
+
+
 //==============================
-// 背景
+// 背景制御
 //==============================
 function setBackground(color){
     background.style.backgroundColor = color;
@@ -97,12 +112,14 @@ function blackScreen(){
     hideMessage();
     background.classList.remove("white");
     background.classList.add("black");
+    setBackground("#000000");
 }
 
 function whiteScreen(){
     hideMessage();
     background.classList.remove("black");
     background.classList.add("white");
+    setBackground("#ffffff");
 }
 
 
@@ -117,9 +134,10 @@ function showMessage(text, color){
 
 function hideMessage(){
     message.style.opacity = 0;
+
     setTimeout(() => {
         message.innerHTML = "";
-    }, 1500);
+    }, 800); // ←1500msは長すぎて残像バグになるので短縮
 }
 
 
@@ -127,412 +145,164 @@ function hideMessage(){
 // タイトル
 //==============================
 function hideTitle(){
+    if(!titleScreen) return;
+
     titleScreen.style.opacity = 0;
+
     setTimeout(() => {
         titleScreen.style.display = "none";
-    }, 2000);
+    }, 1000); // ←2000ms → 1000ms（レスポンス改善）
 }
+//==================================================
+// PART 3: 音声システム（安定化）
+//==================================================
 
 
 //==============================
-// シーン
+// 共通再生関数（最重要修正）
 //==============================
-function showScene(scene){
-    setBackground(scene.color);
+function playAudio(audio){
 
-    if(scene.text === ""){
-        hideMessage();
-    } else {
-        showMessage(scene.text, scene.textColor);
+    if(!audio) return;
+
+    try{
+        audio.currentTime = 0;
+
+        const playPromise = audio.play();
+
+        if(playPromise !== undefined){
+            playPromise.catch(err => {
+                console.log("audio blocked:", err);
+            });
+        }
+
+    } catch(err){
+        console.log("audio error:", err);
     }
 }
 
-function showRandomScene(){
-    const scene = scenes[random(0, scenes.length - 1)];
-    showScene(scene);
-}
-
 
 //==============================
-// 音
+// 個別音
 //==============================
 function playBell(){
-    bell.currentTime = 0;
-    bell.play();
+    playAudio(bell);
 }
 
 function playSound1(){
-    sound1.currentTime = 0;
-    sound1.play();
-}
-
-function playRandomSound(){
-    const audio = randomSounds[random(0, randomSounds.length - 1)];
-    audio.currentTime = 0;
-    audio.play();
-}
-//==============================
-// 呼吸
-//==============================
-function breathingLoop(){
-    if(!running) return;
-
-    const wait = random(20, 60);
-
-    breathingTimer = setTimeout(() => {
-
-        background.classList.add("breath");
-
-        setTimeout(() => {
-            background.classList.remove("breath");
-            breathingLoop();
-        }, 10000);
-
-    }, wait * 1000);
-}
-
-function startBreathing(){
-    stopBreathing();
-    breathingLoop();
-}
-
-function stopBreathing(){
-    clearTimeout(breathingTimer);
-    background.classList.remove("breath");
-}
-
-
-//==============================
-// ランダム色
-//==============================
-function randomColorLoop(){
-    if(!running) return;
-
-    showRandomScene();
-
-    const wait = random(COLOR_MIN, COLOR_MAX);
-
-    colorTimer = setTimeout(() => {
-        randomColorLoop();
-    }, wait * 1000);
-}
-
-function startRandomColors(){
-    stopRandomColors();
-    randomColorLoop();
-}
-
-function stopRandomColors(){
-    clearTimeout(colorTimer);
+    playAudio(sound1);
 }
 
 
 //==============================
 // ランダム音
 //==============================
-function randomSoundLoop(){
-    if(!running) return;
-
-    const wait = random(SOUND_MIN, SOUND_MAX);
-
-    soundTimer = setTimeout(() => {
-        playRandomSound();
-        randomSoundLoop();
-    }, wait * 1000);
-}
-
-function startRandomSounds(){
-    stopRandomSounds();
-    randomSoundLoop();
-}
-
-function stopRandomSounds(){
-    clearTimeout(soundTimer);
-}
-
-//==============================
-// 状態管理
-//==============================
-function setState(s){
-    state = s;
-    console.log("STATE:", state);
+function playRandomSound(){
+    const audio = randomSounds[random(0, randomSounds.length - 1)];
+    playAudio(audio);
 }
 
 
 //==============================
-// メインエンジン
+// 初期ロード（安定化）
 //==============================
-function startPerformance(){
+function initAudio(){
+    const all = [bell, sound1, sound2, sound3, sound4];
 
-    if(running) return;
-
-    running = true;
-    startTime = Date.now();
-
-    setState("TITLE");
-
-    startScreen.style.display = "none";
-    whiteScreen();
-
-    rafLoop();
-}
-
-function rafLoop(){
-
-    if(!running) return;
-
-    const t = (Date.now() - startTime) / 1000;
-
-    if(t < TITLE_TIME){
-        setState("TITLE");
-    }
-
-    else if(t < TITLE_TIME + WHITE1_TIME){
-        setState("WHITE1");
-        whiteScreen();
-    }
-
-    else if(t < TITLE_TIME + WHITE1_TIME + BLACK1_TIME){
-        setState("BLACK1");
-        blackScreen();
-    }
-
-    else if(t < TITLE_TIME + WHITE1_TIME + BLACK1_TIME + WHITE2_TIME){
-        if(state !== "WHITE2"){
-            setState("WHITE2");
-            whiteScreen();
-            startBreathing();
-        }
-    }
-
-    else if(t < TITLE_TIME + WHITE1_TIME + BLACK1_TIME + WHITE2_TIME + RANDOM_COLOR_TIME){
-        if(state !== "RANDOM"){
-            setState("RANDOM");
-            stopBreathing();
-            playBell();
-            startRandomColors();
-        }
-    }
-
-    else if(t < TITLE_TIME + WHITE1_TIME + BLACK1_TIME + WHITE2_TIME + RANDOM_COLOR_TIME + BLACK2_TIME){
-        if(state !== "BLACK2"){
-            setState("BLACK2");
-            stopRandomColors();
-            blackScreen();
-            playSound1();
-        }
-    }
-
-    else if(t < TITLE_TIME + WHITE1_TIME + BLACK1_TIME + WHITE2_TIME + RANDOM_COLOR_TIME + BLACK2_TIME + FINAL_TIME){
-        if(state !== "FINAL"){
-            setState("FINAL");
-            whiteScreen();
-            startRandomSounds();
-        }
-    }
-
-    else {
-        endPerformance();
-        return;
-    }
-
-    rafId = requestAnimationFrame(rafLoop);
+    all.forEach(a => {
+        if(!a) return;
+        a.load();
+        a.volume = 1;
+    });
 }
 
 
 //==============================
-// 終了
+// ユーザー操作後に音を有効化
 //==============================
-function endPerformance(){
+function unlockAudio(){
+    const all = [bell, sound1, sound2, sound3, sound4];
 
-    running = false;
-    setState("IDLE");
-
-    cancelAnimationFrame(rafId);
-
-    stopRandomColors();
-    stopRandomSounds();
-    stopBreathing();
-
-    bell.pause();
-    sound1.pause();
-    sound2.pause();
-    sound3.pause();
-    sound4.pause();
-
-    whiteScreen();
-
-    startScreen.style.display = "flex";
-
-    alert("作品が終了しました");
+    all.forEach(a => {
+        if(!a) return;
+        a.play().then(() => {
+            a.pause();
+            a.currentTime = 0;
+        }).catch(() => {
+            // 初回はブロックされてもOK
+        });
+    });
 }
 
+//==================================================
+// PART 4: シーン・ランダム演出
+//==================================================
+
 
 //==============================
-// 緊急停止
+// シーン表示（安全化）
 //==============================
+function showScene(scene){
 
-const phases = [
-    "TITLE",
-    "WHITE1",
-    "BLACK1",
-    "WHITE2",
-    "RANDOM",
-    "BLACK2",
-    "FINAL"
-];
+    if(!scene) return;
 
-let phaseIndex = 0;
+    setBackground(scene.color);
 
-function emergencyStop(){
-
-    running = false;
-    setState("IDLE");
-
-    cancelAnimationFrame(rafId);
-
-    stopRandomColors();
-    stopRandomSounds();
-    stopBreathing();
-
-    bell.pause();
-    sound1.pause();
-    sound2.pause();
-    sound3.pause();
-    sound4.pause();
-
-    whiteScreen();
-
-    startScreen.style.display = "flex";
-
-    console.log("EMERGENCY STOP");
-}
-function nextPhase(){
-
-    if(!running){
-        running = true;
-        phaseIndex = 0;
-    }
-
-    if(phaseIndex < phases.length){
-
-        runPhase(phases[phaseIndex]);
-        phaseIndex++;
-
+    if(scene.text && scene.text !== ""){
+        showMessage(scene.text, scene.textColor || "black");
     } else {
-
-        endPerformance();
-
-    }
-}
-
-function prevPhase(){
-
-    if(phaseIndex <= 1) return;
-
-    phaseIndex -= 2;
-    runPhase(phases[phaseIndex]);
-    phaseIndex++;
-}
-
-function runPhase(phase){
-
-    console.log("PHASE:", phase);
-
-    switch(phase){
-
-        case "TITLE":
-            whiteScreen();
-            hideTitle();
-            break;
-
-        case "WHITE1":
-            whiteScreen();
-            break;
-
-        case "BLACK1":
-            blackScreen();
-            break;
-
-        case "WHITE2":
-            whiteScreen();
-            startBreathing();
-            break;
-
-        case "RANDOM":
-            stopBreathing();
-            playBell();
-            startRandomColors();
-            break;
-
-        case "BLACK2":
-            stopRandomColors();
-            blackScreen();
-            playSound1();
-            break;
-
-        case "FINAL":
-            whiteScreen();
-            startRandomSounds();
-            break;
+        hideMessage();
     }
 }
 
 
-function resetPerformance(){
+//==============================
+// ランダムシーン
+//==============================
+function showRandomScene(){
 
-    running = false;
-    phaseIndex = 0;
+    if(!scenes || scenes.length === 0) return;
+
+    const scene = scenes[random(0, scenes.length - 1)];
+
+    showScene(scene);
+}
+
+
+//==============================
+// 色ランダムループ（暴走防止版）
+//==============================
+function randomColorLoop(){
+
+    if(!running) return;
+
+    showRandomScene();
+
+    const wait = random(COLOR_MIN, COLOR_MAX);
+
+    const id = setTimeout(() => {
+        randomColorLoop();
+    }, wait * 1000);
+
+    addTimer(id);
+}
+
+
+//==============================
+// 開始
+//==============================
+function startRandomColors(){
 
     stopRandomColors();
-    stopRandomSounds();
-    stopBreathing();
-
-    bell.pause();
-    sound1.pause();
-    sound2.pause();
-    sound3.pause();
-    sound4.pause();
-
-    whiteScreen();
-
-    startScreen.style.display = "flex";
-
-    console.log("RESET");
+    randomColorLoop();
 }
 
+
 //==============================
-// 操作
+// 停止（完全停止版）
 //==============================
+function stopRandomColors(){
 
-document.addEventListener("keydown", (e) => {
-
-    console.log("KEY:", e.key);
-
-    if(e.key === " " || e.key === "Enter"){
-        e.preventDefault();
-        nextPhase();
-    }
-
-    if(e.key === "ArrowLeft"){
-        prevPhase();
-    }
-
-    if(e.key === "r" || e.key === "R"){
-        resetPerformance();
-    }
-
-    if(e.key === "Escape"){
-        emergencyStop();
-    }
-});
-//==============================
-// 音読み込み
-//==============================
-window.addEventListener("load", () => {
-    bell.load();
-    sound1.load();
-    sound2.load();
-    sound3.load();
-    sound4.load();
-});
+    // 既存タイマー全削除
+    clearAllTimers();
+}
