@@ -383,7 +383,6 @@ const phases = [
 ];
 
 let phaseIndex = 0;
-let running = false;
 
 function emergencyStop(){
 
@@ -478,25 +477,7 @@ function runPhase(phase){
             break;
     }
 }
-document.addEventListener("keydown", (e) => {
 
-    if(e.code === "Space" || e.code === "Enter"){
-        e.preventDefault();
-        nextPhase();
-    }
-
-    if(e.key === "ArrowLeft"){
-        prevPhase();
-    }
-
-    if(e.key === "r" || e.key === "R"){
-        resetPerformance();
-    }
-
-    if(e.key === "Escape"){
-        emergencyStop();
-    }
-});
 
 function resetPerformance(){
 
@@ -523,7 +504,6 @@ function resetPerformance(){
 //==============================
 // 操作
 //==============================
-startButton.addEventListener("click", startPerformance);
 
 document.addEventListener("keydown", (e) => {
 
