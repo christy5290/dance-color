@@ -507,9 +507,21 @@ function resetPerformance(){
 
 document.addEventListener("keydown", (e) => {
 
-    if(e.code === "Space"){
+    if(e.code === "Space" || e.code === "Enter"){
         e.preventDefault();
-        startPerformance();
+        nextPhase();
+    }
+
+    if(e.key === "ArrowLeft"){
+        prevPhase();
+    }
+
+    if(e.key === "r" || e.key === "R"){
+        resetPerformance();
+    }
+
+    if(e.key === "Escape"){
+        emergencyStop();
     }
 
     if(e.key === "f" || e.key === "F"){
@@ -517,12 +529,7 @@ document.addEventListener("keydown", (e) => {
             document.documentElement.requestFullscreen();
         }
     }
-
-    if(e.key === "Escape"){
-        emergencyStop();
-    }
 });
-
 
 //==============================
 // 音読み込み
