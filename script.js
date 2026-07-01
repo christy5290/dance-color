@@ -1,814 +1,354 @@
 //==================================================
-// 身体の可能性
+// 身体の可能性（改修版：状態管理エンジン）
 // script.js
-// Part 1
 //==================================================
 
 
-
-//==================================================
+//==============================
 // 時間設定（秒）
-//==================================================
-
-// タイトル表示
+//==============================
 const TITLE_TIME = 15;
-
-// 白背景
-const WHITE1_TIME = 1 * 60;
-
-// 黒画面①
+const WHITE1_TIME = 60;
 const BLACK1_TIME = 30;
-
-// 白背景
-const WHITE2_TIME = 5 * 60;
-
-// ランダム色
-const RANDOM_COLOR_TIME = 5 * 60;
-
-// 黒画面②
+const WHITE2_TIME = 300;
+const RANDOM_COLOR_TIME = 300;
 const BLACK2_TIME = 30;
-
-// 最後
-const FINAL_TIME = 10 * 60;
+const FINAL_TIME = 600;
 
 
-
-//==================================================
-// ランダム時間
-//==================================================
-
-// 色変更
+//==============================
+// ランダム設定
+//==============================
 const COLOR_MIN = 30;
 const COLOR_MAX = 60;
 
-// 音
 const SOUND_MIN = 60;
 const SOUND_MAX = 180;
 
 
-
-//==================================================
-// DOM取得
-//==================================================
-
+//==============================
+// DOM
+//==============================
 const background = document.getElementById("background");
-
 const titleScreen = document.getElementById("titleScreen");
-
 const message = document.getElementById("message");
-
 const startScreen = document.getElementById("startScreen");
-
 const startButton = document.getElementById("startButton");
 
 
-
-//==================================================
+//==============================
 // 音声
-//==================================================
-
+//==============================
 const bell = document.getElementById("bell");
-
 const sound1 = document.getElementById("sound1");
-
 const sound2 = document.getElementById("sound2");
-
 const sound3 = document.getElementById("sound3");
-
 const sound4 = document.getElementById("sound4");
 
+const randomSounds = [sound2, sound3, sound4];
 
 
-// ランダム再生用
-
-const randomSounds = [
-
-    sound2,
-    sound3,
-    sound4
-
-];
-
-
-
-//==================================================
-// ランダム表示一覧
-//==================================================
-
+//==============================
+// シーン
+//==============================
 const scenes = [
-
-    {
-        name:"赤",
-        color:"#ff0000",
-        text:"",
-        textColor:"white"
-    },
-
-    {
-        name:"青",
-        color:"#cfeeff",
-        text:"",
-        textColor:"black"
-    },
-
-    {
-        name:"黄緑",
-        color:"#dcffd5",
-        text:"",
-        textColor:"black"
-    },
-
-    {
-        name:"黄色",
-        color:"#fff8b5",
-        text:"",
-        textColor:"black"
-    },
-
-    {
-        name:"止",
-
-        color:"#ffffff",
-
-        text:"止",
-
-        textColor:"black"
-
-    }
-
+    { name:"赤", color:"#ff0000", text:"", textColor:"white" },
+    { name:"青", color:"#cfeeff", text:"", textColor:"black" },
+    { name:"黄緑", color:"#dcffd5", text:"", textColor:"black" },
+    { name:"黄色", color:"#fff8b5", text:"", textColor:"black" },
+    { name:"止", color:"#ffffff", text:"止", textColor:"black" }
 ];
 
 
-
-//==================================================
+//==============================
 // 状態管理
-//==================================================
-
+//==============================
 let running = false;
+let state = "IDLE";
+
+let startTime = 0;
+let rafId = null;
 
 let colorTimer = null;
-
 let soundTimer = null;
-
 let breathingTimer = null;
 
+let SPEED = 1;
 
 
-//==================================================
+//==============================
 // ユーティリティ
-//==================================================
-
-// ランダム整数
-
-function random(min,max){
-
-    return Math.floor(
-
-        Math.random()*(max-min+1)
-
-    )+min;
-
+//==============================
+function random(min, max){
+    return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
-
-
-// 秒→ミリ秒
-
-function sec(value){
-
-    return value*1000;
-
+function sec(v){
+    return v * 1000 / SPEED;
 }
-
-
-
-//==================================================
-// 初期状態
-//==================================================
-
-background.className = "white";
-
-message.innerHTML = "";
-
-message.style.opacity = 0;
-
-titleScreen.style.opacity = 1;
-
-//==================================================
-// Part2（修正版）
-// 演出関数
-//==================================================
-
-
-//--------------------------------------
-// 背景変更
-//--------------------------------------
-
+//==============================
+// 背景
+//==============================
 function setBackground(color){
-
     background.style.backgroundColor = color;
+}
 
+function blackScreen(){
+    hideMessage();
+    background.classList.remove("white");
+    background.classList.add("black");
+}
+
+function whiteScreen(){
+    hideMessage();
+    background.classList.remove("black");
+    background.classList.add("white");
 }
 
 
-
-//--------------------------------------
-// メッセージ表示
-//--------------------------------------
-
-function showMessage(text,color){
-
+//==============================
+// メッセージ
+//==============================
+function showMessage(text, color){
     message.innerHTML = text;
     message.style.color = color;
     message.style.opacity = 1;
-
 }
-
-
-
-//--------------------------------------
-// メッセージ非表示
-//--------------------------------------
 
 function hideMessage(){
-
     message.style.opacity = 0;
-
-    setTimeout(()=>{
-
-        message.innerHTML="";
-
-    },2000);
-
+    setTimeout(() => {
+        message.innerHTML = "";
+    }, 1500);
 }
 
 
-
-//--------------------------------------
-// タイトルを消す
-//--------------------------------------
-
+//==============================
+// タイトル
+//==============================
 function hideTitle(){
-
     titleScreen.style.opacity = 0;
-
-    setTimeout(()=>{
-
-        titleScreen.style.display="none";
-
-    },3000);
-
+    setTimeout(() => {
+        titleScreen.style.display = "none";
+    }, 2000);
 }
 
 
-
-//--------------------------------------
-// 黒画面
-//--------------------------------------
-
-function blackScreen(){
-
-    hideMessage();
-
-    background.className = "black";
-
-}
-
-
-
-//--------------------------------------
-// 白画面
-//--------------------------------------
-
-function whiteScreen(){
-
-    hideMessage();
-
-    background.className = "white";
-
-}
-
-
-
-//--------------------------------------
-// シーン表示
-//--------------------------------------
-
+//==============================
+// シーン
+//==============================
 function showScene(scene){
-
     setBackground(scene.color);
 
-    if(scene.text===""){
-
+    if(scene.text === ""){
         hideMessage();
-
+    } else {
+        showMessage(scene.text, scene.textColor);
     }
-
-    else{
-
-        showMessage(scene.text,scene.textColor);
-
-    }
-
 }
-
-
-
-//--------------------------------------
-// ランダムシーン
-//--------------------------------------
 
 function showRandomScene(){
-
-    const scene = scenes[random(0,scenes.length-1)];
-
+    const scene = scenes[random(0, scenes.length - 1)];
     showScene(scene);
-
 }
 
 
-
-//--------------------------------------
-// ベル
-//--------------------------------------
-
+//==============================
+// 音
+//==============================
 function playBell(){
-
     bell.currentTime = 0;
     bell.play();
-
 }
-
-
-
-//--------------------------------------
-// sound1
-//--------------------------------------
 
 function playSound1(){
-
     sound1.currentTime = 0;
     sound1.play();
-
 }
-
-
-
-//--------------------------------------
-// ランダム音
-//--------------------------------------
 
 function playRandomSound(){
-
-    const audio =
-
-        randomSounds[
-
-            random(0,randomSounds.length-1)
-
-        ];
-
+    const audio = randomSounds[random(0, randomSounds.length - 1)];
     audio.currentTime = 0;
-
     audio.play();
-
 }
-
-
-
-//==================================================
-// 呼吸演出
-//==================================================
-
+//==============================
+// 呼吸
+//==============================
 function breathingLoop(){
-
     if(!running) return;
 
+    const wait = random(20, 60);
 
-
-    const wait = random(20,60);
-
-
-
-    breathingTimer = setTimeout(()=>{
+    breathingTimer = setTimeout(() => {
 
         background.classList.add("breath");
 
-
-
-        setTimeout(()=>{
-
+        setTimeout(() => {
             background.classList.remove("breath");
-
-
-
             breathingLoop();
+        }, 10000);
 
-
-
-        },10000);
-
-
-
-    },wait*1000);
-
+    }, wait * 1000);
 }
-
-
-
-//--------------------------------------
-// 呼吸開始
-//--------------------------------------
 
 function startBreathing(){
-
     stopBreathing();
-
     breathingLoop();
-
 }
-
-
-
-//--------------------------------------
-// 呼吸停止
-//--------------------------------------
 
 function stopBreathing(){
-
     clearTimeout(breathingTimer);
-
     background.classList.remove("breath");
-
 }
 
 
-
-//==================================================
+//==============================
 // ランダム色
-//==================================================
-
+//==============================
 function randomColorLoop(){
-
     if(!running) return;
-
-
 
     showRandomScene();
 
+    const wait = random(COLOR_MIN, COLOR_MAX);
 
-
-    const wait = random(
-
-        COLOR_MIN,
-
-        COLOR_MAX
-
-    );
-
-
-
-    colorTimer = setTimeout(
-
-        randomColorLoop,
-
-        wait*1000
-
-    );
-
+    colorTimer = setTimeout(() => {
+        randomColorLoop();
+    }, wait * 1000);
 }
-
-
-
-//--------------------------------------
-// ランダム色開始
-//--------------------------------------
 
 function startRandomColors(){
-
     stopRandomColors();
-
     randomColorLoop();
-
 }
-
-
-
-//--------------------------------------
-// ランダム色停止
-//--------------------------------------
 
 function stopRandomColors(){
-
     clearTimeout(colorTimer);
-
 }
 
 
-
-//==================================================
+//==============================
 // ランダム音
-//==================================================
-
+//==============================
 function randomSoundLoop(){
-
     if(!running) return;
 
+    const wait = random(SOUND_MIN, SOUND_MAX);
 
-
-    const wait = random(
-
-        SOUND_MIN,
-
-        SOUND_MAX
-
-    );
-
-
-
-    soundTimer = setTimeout(()=>{
-
+    soundTimer = setTimeout(() => {
         playRandomSound();
-
         randomSoundLoop();
-
-    },wait*1000);
-
+    }, wait * 1000);
 }
-
-
-
-//--------------------------------------
-// ランダム音開始
-//--------------------------------------
 
 function startRandomSounds(){
-
     stopRandomSounds();
-
     randomSoundLoop();
-
 }
-
-
-
-//--------------------------------------
-// ランダム音停止
-//--------------------------------------
 
 function stopRandomSounds(){
-
     clearTimeout(soundTimer);
-
 }
 
-//==================================================
-// Part3
-// タイムライン
-//==================================================
+//==============================
+// 状態管理
+//==============================
+function setState(s){
+    state = s;
+    console.log("STATE:", state);
+}
 
+
+//==============================
+// メインエンジン
+//==============================
 function startPerformance(){
 
     if(running) return;
 
     running = true;
+    startTime = Date.now();
 
-    // デバッグ用（開始直後に音）
-    playSound1();
+    setState("TITLE");
 
-    // スタート画面を消す
     startScreen.style.display = "none";
-
-    // 白画面
     whiteScreen();
 
-    //==============================
-    // タイトル終了
-    //==============================
-
-    setTimeout(() => {
-
-        hideTitle();
-
-    }, sec(TITLE_TIME));
-
-
-
-    //==============================
-    // 呼吸開始
-    //==============================
-
-    setTimeout(() => {
-
-        startBreathing();
-
-    }, sec(TITLE_TIME) + 3000);
-
-
-
-    //==============================
-    // 白背景終了
-    //==============================
-
-    setTimeout(() => {
-
-        stopBreathing();
-
-        blackScreen();
-
-    }, sec(TITLE_TIME + WHITE1_TIME));
-
-setTimeout(() => {
-
-    whiteScreen();
-
-    startBreathing();
-
-}, sec(
-    TITLE_TIME +
-    WHITE1_TIME +
-    BLACK1_TIME
-));
-
-
-    //==============================
-    // ベル＋ランダム色
-    //==============================
-
-    setTimeout(() => {
-
-        stopBreathing();
-
-        playBell();
-
-        startRandomColors();
-
-    }, sec(
-        TITLE_TIME +
-        WHITE1_TIME +
-        BLACK1_TIME+
-        WHITE2_TIME
-    ));
-
-
-
-    //==============================
-    // ランダム色終了
-    //==============================
-
-    setTimeout(() => {
-
-        stopRandomColors();
-
-        blackScreen();
-
-        playSound1();
-
-    }, sec(
-        TITLE_TIME +
-        WHITE1_TIME +
-        BLACK1_TIME +
-        WHITE2_TIME+
-        RANDOM_COLOR_TIME
-    ));
-
-
-
-    //==============================
-    // 最後の白画面
-    //==============================
-
-    setTimeout(() => {
-
-        whiteScreen();
-
-        startRandomSounds();
-
-    }, sec(
-        TITLE_TIME +
-        WHITE1_TIME +
-        BLACK1_TIME +
-        WHITE2_TIME+
-        RANDOM_COLOR_TIME +
-        BLACK2_TIME
-    ));
-
-
-
-    //==============================
-    // 終了
-    //==============================
-
-    setTimeout(() => {
-
-        stopRandomSounds();
-
-        whiteScreen();
-
-        running = false;
-
-        alert("作品が終了しました");
-
-    }, sec(
-        TITLE_TIME +
-        WHITE1_TIME +
-        BLACK1_TIME +
-        WHITE2_TIME+
-        RANDOM_COLOR_TIME +
-        BLACK2_TIME +
-        FINAL_TIME
-    ));
-
+    rafLoop();
 }
-//==================================================
-// Part4
-// スタート・終了・全画面
-//==================================================
 
+function rafLoop(){
 
-//--------------------------------------
-// スタート
-//--------------------------------------
+    if(!running) return;
 
-startButton.addEventListener("click",()=>{
+    const t = (Date.now() - startTime) / 1000;
 
-    if(running) return;
+    if(t < TITLE_TIME){
+        setState("TITLE");
+    }
 
-    startPerformance();
+    else if(t < TITLE_TIME + WHITE1_TIME){
+        setState("WHITE1");
+        whiteScreen();
+    }
 
-});
+    else if(t < TITLE_TIME + WHITE1_TIME + BLACK1_TIME){
+        setState("BLACK1");
+        blackScreen();
+    }
 
-
-
-//--------------------------------------
-// スペースキーでも開始
-//--------------------------------------
-
-document.addEventListener("keydown",(event)=>{
-
-    if(event.code==="Space"){
-
-        event.preventDefault();
-
-        if(!running){
-
-            startPerformance();
-
+    else if(t < TITLE_TIME + WHITE1_TIME + BLACK1_TIME + WHITE2_TIME){
+        if(state !== "WHITE2"){
+            setState("WHITE2");
+            whiteScreen();
+            startBreathing();
         }
-
     }
 
-});
-
-
-
-//--------------------------------------
-// Fキーで全画面
-//--------------------------------------
-
-document.addEventListener("keydown",(event)=>{
-
-    if(event.key==="f" || event.key==="F"){
-
-        if(!document.fullscreenElement){
-
-            document.documentElement.requestFullscreen();
-
+    else if(t < TITLE_TIME + WHITE1_TIME + BLACK1_TIME + WHITE2_TIME + RANDOM_COLOR_TIME){
+        if(state !== "RANDOM"){
+            setState("RANDOM");
+            stopBreathing();
+            playBell();
+            startRandomColors();
         }
-
     }
 
-});
-
-
-
-//--------------------------------------
-// ESCで終了
-//--------------------------------------
-
-document.addEventListener("keydown",(event)=>{
-
-    if(event.key==="Escape"){
-
-        emergencyStop();
-
+    else if(t < TITLE_TIME + WHITE1_TIME + BLACK1_TIME + WHITE2_TIME + RANDOM_COLOR_TIME + BLACK2_TIME){
+        if(state !== "BLACK2"){
+            setState("BLACK2");
+            stopRandomColors();
+            blackScreen();
+            playSound1();
+        }
     }
 
-});
+    else if(t < TITLE_TIME + WHITE1_TIME + BLACK1_TIME + WHITE2_TIME + RANDOM_COLOR_TIME + BLACK2_TIME + FINAL_TIME){
+        if(state !== "FINAL"){
+            setState("FINAL");
+            whiteScreen();
+            startRandomSounds();
+        }
+    }
+
+    else {
+        endPerformance();
+        return;
+    }
+
+    rafId = requestAnimationFrame(rafLoop);
+}
 
 
-
-//--------------------------------------
-// 緊急停止
-//--------------------------------------
-
-function emergencyStop(){
+//==============================
+// 終了
+//==============================
+function endPerformance(){
 
     running = false;
+    setState("IDLE");
 
-    clearTimeout(colorTimer);
-    clearTimeout(soundTimer);
-    clearTimeout(breathingTimer);
+    cancelAnimationFrame(rafId);
 
     stopRandomColors();
     stopRandomSounds();
@@ -820,51 +360,73 @@ function emergencyStop(){
     sound3.pause();
     sound4.pause();
 
-    bell.currentTime=0;
-    sound1.currentTime=0;
-    sound2.currentTime=0;
-    sound3.currentTime=0;
-    sound4.currentTime=0;
-
-    message.innerHTML="";
-    message.style.opacity=0;
-
-    titleScreen.style.display="flex";
-    titleScreen.style.opacity=1;
-
     whiteScreen();
 
-    startScreen.style.display="flex";
+    startScreen.style.display = "flex";
 
-    console.log("緊急停止しました");
-
+    alert("作品が終了しました");
 }
 
 
+//==============================
+// 緊急停止
+//==============================
+function emergencyStop(){
 
-//==================================================
-// 音声の事前読み込み
-//==================================================
+    running = false;
+    setState("IDLE");
 
-window.addEventListener("load",()=>{
+    cancelAnimationFrame(rafId);
 
+    stopRandomColors();
+    stopRandomSounds();
+    stopBreathing();
+
+    bell.pause();
+    sound1.pause();
+    sound2.pause();
+    sound3.pause();
+    sound4.pause();
+
+    whiteScreen();
+
+    startScreen.style.display = "flex";
+
+    console.log("EMERGENCY STOP");
+}
+
+
+//==============================
+// 操作
+//==============================
+startButton.addEventListener("click", startPerformance);
+
+document.addEventListener("keydown", (e) => {
+
+    if(e.code === "Space"){
+        e.preventDefault();
+        startPerformance();
+    }
+
+    if(e.key === "f" || e.key === "F"){
+        if(!document.fullscreenElement){
+            document.documentElement.requestFullscreen();
+        }
+    }
+
+    if(e.key === "Escape"){
+        emergencyStop();
+    }
+});
+
+
+//==============================
+// 音読み込み
+//==============================
+window.addEventListener("load", () => {
     bell.load();
     sound1.load();
     sound2.load();
     sound3.load();
     sound4.load();
-
 });
-
-
-
-//==================================================
-// デバッグ用
-//==================================================
-
-// ブラウザのコンソールで
-//
-// emergencyStop();
-//
-// を入力すると
-// 強制終了できます。
