@@ -507,7 +507,9 @@ function resetPerformance(){
 
 document.addEventListener("keydown", (e) => {
 
-    if(e.code === "Space" || e.code === "Enter"){
+    console.log("KEY:", e.key);
+
+    if(e.key === " " || e.key === "Enter"){
         e.preventDefault();
         nextPhase();
     }
@@ -523,14 +525,7 @@ document.addEventListener("keydown", (e) => {
     if(e.key === "Escape"){
         emergencyStop();
     }
-
-    if(e.key === "f" || e.key === "F"){
-        if(!document.fullscreenElement){
-            document.documentElement.requestFullscreen();
-        }
-    }
 });
-
 //==============================
 // 音読み込み
 //==============================
