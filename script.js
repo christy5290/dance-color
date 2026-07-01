@@ -161,6 +161,25 @@ function hideTitle(){
 //==============================
 // 共通再生関数（最重要修正）
 //==============================
+
+function startRandomSounds(){
+    stopRandomSounds();
+
+    const loop = () => {
+        if(!running) return;
+
+        const wait = random(SOUND_MIN, SOUND_MAX);
+
+        const id = setTimeout(() => {
+            playRandomSound();
+            loop();
+        }, wait * 1000);
+
+        addTimer(id);
+    };
+
+    loop();
+}
 function playAudio(audio){
 
     if(!audio) return;
