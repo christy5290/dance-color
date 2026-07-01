@@ -371,6 +371,20 @@ function endPerformance(){
 //==============================
 // 緊急停止
 //==============================
+
+const phases = [
+    "TITLE",
+    "WHITE1",
+    "BLACK1",
+    "WHITE2",
+    "RANDOM",
+    "BLACK2",
+    "FINAL"
+];
+
+let phaseIndex = 0;
+let running = false;
+
 function emergencyStop(){
 
     running = false;
@@ -394,7 +408,117 @@ function emergencyStop(){
 
     console.log("EMERGENCY STOP");
 }
+function nextPhase(){
 
+    if(!running){
+        running = true;
+        phaseIndex = 0;
+    }
+
+    if(phaseIndex < phases.length){
+
+        runPhase(phases[phaseIndex]);
+        phaseIndex++;
+
+    } else {
+
+        endPerformance();
+
+    }
+}
+
+function prevPhase(){
+
+    if(phaseIndex <= 1) return;
+
+    phaseIndex -= 2;
+    runPhase(phases[phaseIndex]);
+    phaseIndex++;
+}
+
+function runPhase(phase){
+
+    console.log("PHASE:", phase);
+
+    switch(phase){
+
+        case "TITLE":
+            whiteScreen();
+            hideTitle();
+            break;
+
+        case "WHITE1":
+            whiteScreen();
+            break;
+
+        case "BLACK1":
+            blackScreen();
+            break;
+
+        case "WHITE2":
+            whiteScreen();
+            startBreathing();
+            break;
+
+        case "RANDOM":
+            stopBreathing();
+            playBell();
+            startRandomColors();
+            break;
+
+        case "BLACK2":
+            stopRandomColors();
+            blackScreen();
+            playSound1();
+            break;
+
+        case "FINAL":
+            whiteScreen();
+            startRandomSounds();
+            break;
+    }
+}
+document.addEventListener("keydown", (e) => {
+
+    if(e.code === "Space" || e.code === "Enter"){
+        e.preventDefault();
+        nextPhase();
+    }
+
+    if(e.key === "ArrowLeft"){
+        prevPhase();
+    }
+
+    if(e.key === "r" || e.key === "R"){
+        resetPerformance();
+    }
+
+    if(e.key === "Escape"){
+        emergencyStop();
+    }
+});
+
+function resetPerformance(){
+
+    running = false;
+    phaseIndex = 0;
+
+    stopRandomColors();
+    stopRandomSounds();
+    stopBreathing();
+
+    bell.pause();
+    sound1.pause();
+    sound2.pause();
+    sound3.pause();
+    sound4.pause();
+
+    whiteScreen();
+
+    startScreen.style.display = "flex";
+
+    console.log("RESET");
+}
 
 //==============================
 // 操作
