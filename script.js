@@ -306,3 +306,416 @@ function stopRandomColors(){
     // 既存タイマー全削除
     clearAllTimers();
 }
+//==================================================
+// PART 5: 呼吸・タイマー系ループ
+//==================================================
+
+
+//==============================
+// 呼吸ループ（安定化版）
+//==============================
+function breathingLoop(){
+
+    if(!running) return;
+
+    const wait = random(20, 60);
+
+    const id = setTimeout(() => {
+
+        if(!running) return;
+
+        background.classList.add("breath");
+
+        const inner = setTimeout(() => {
+
+            background.classList.remove("breath");
+
+            breathingLoop();
+
+        }, 10000);
+
+        addTimer(inner);
+
+    }, wait * 1000);
+
+    addTimer(id);
+}
+
+
+//==============================
+// 呼吸開始
+//==============================
+function startBreathing(){
+
+    stopBreathing();
+    breathingLoop();
+}
+
+
+//==============================
+// 呼吸停止（完全停止版）
+//==============================
+function stopBreathing(){
+
+    // 全タイマー削除で完全停止
+    clearAllTimers();
+
+    background.classList.remove("breath");
+}
+//==================================================
+// PART 6: メインエンジン（rafLoop安定化）
+//==================================================
+
+
+//==============================
+// 状態設定
+//==============================
+function setState(s){
+    if(state === s) return; // 無駄ログ・再実行防止
+    state = s;
+    console.log("STATE:", state);
+}
+
+
+//==============================
+// メインループ
+//==============================
+function rafLoop(){
+
+    if(!running) return;
+
+    const t = (Date.now() - startTime) / 1000;
+
+    const t1 = TITLE_TIME;
+    const t2 = t1 + WHITE1_TIME;
+    const t3 = t2 + BLACK1_TIME;
+    const t4 = t3 + WHITE2_TIME;
+    const t5 = t4 + RANDOM_COLOR_TIME;
+    const t6 = t5 + BLACK2_TIME;
+    const t7 = t6 + FINAL_TIME;
+
+
+    //==========================
+    // TITLE
+    //==========================
+    if(t < t1){
+
+        setState("TITLE");
+
+    }
+
+    //==========================
+    // WHITE1
+    //==========================
+    else if(t < t2){
+
+        setState("WHITE1");
+        whiteScreen();
+
+    }
+
+    //==========================
+    // BLACK1
+    //==========================
+    else if(t < t3){
+
+        setState("BLACK1");
+        blackScreen();
+
+    }
+
+    //==========================
+    // WHITE2 + 呼吸
+    //==========================
+    else if(t < t4){
+
+        if(state !== "WHITE2"){
+            setState("WHITE2");
+            whiteScreen();
+            startBreathing();
+        }
+    }
+
+    //==========================
+    // RANDOM COLOR + bell
+    //==========================
+    else if(t < t5){
+
+        if(state !== "RANDOM"){
+            setState("RANDOM");
+            stopBreathing();
+            playBell();
+            startRandomColors();
+        }
+    }
+
+    //==========================
+    // BLACK2
+    //==========================
+    else if(t < t6){
+
+        if(state !== "BLACK2"){
+            setState("BLACK2");
+            stopRandomColors();
+            blackScreen();
+            playSound1();
+        }
+    }
+
+    //==========================
+    // FINAL
+    //==========================
+    else if(t < t7){
+
+        if(state !== "FINAL"){
+            setState("FINAL");
+            whiteScreen();
+            startRandomSounds();
+        }
+    }
+
+    //==========================
+    // END
+    //==========================
+    else {
+        endPerformance();
+        return;
+    }
+
+    rafId = requestAnimationFrame(rafLoop);
+}
+
+//==================================================
+// PART 7: 操作・緊急停止・イベント
+//==================================================
+
+
+//==============================
+// 終了処理（共通化）
+//==============================
+function stopAll(){
+
+    running = false;
+
+    cancelAnimationFrame(rafId);
+
+    clearAllTimers();
+
+    // 音停止
+    const allSounds = [bell, sound1, sound2, sound3, sound4];
+
+    allSounds.forEach(a => {
+        if(!a) return;
+        a.pause();
+        a.currentTime = 0;
+    });
+
+    // UIリセット
+    background.classList.remove("breath");
+    whiteScreen();
+
+    startScreen.style.display = "flex";
+
+    setState("IDLE");
+}
+
+
+//==============================
+// 終了
+//==============================
+function endPerformance(){
+    stopAll();
+    alert("作品が終了しました");
+}
+
+
+//==============================
+// 緊急停止
+//==============================
+function emergencyStop(){
+    stopAll();
+    console.log("EMERGENCY STOP");
+}
+
+
+//==============================
+// リセット
+//==============================
+function resetPerformance(){
+    phaseIndex = 0;
+    stopAll();
+    console.log("RESET");
+}
+
+
+//==============================
+// フェーズ管理
+//==============================
+const phases = [
+    "TITLE",
+    "WHITE1",
+    "BLACK1",
+    "WHITE2",
+    "RANDOM",
+    "BLACK2",
+    "FINAL"
+];
+
+let phaseIndex = 0;
+
+
+//==============================
+// 次フェーズ
+//==============================
+function nextPhase(){
+
+    if(!running){
+        running = true;
+        phaseIndex = 0;
+    }
+
+    if(phaseIndex < phases.length){
+        runPhase(phases[phaseIndex]);
+        phaseIndex++;
+    } else {
+        endPerformance();
+    }
+}
+
+
+//==============================
+// 前フェーズ
+//==============================
+function prevPhase(){
+
+    if(phaseIndex <= 1) return;
+
+    phaseIndex -= 2;
+
+    if(phaseIndex < 0) phaseIndex = 0;
+
+    runPhase(phases[phaseIndex]);
+
+    phaseIndex++;
+}
+
+
+//==============================
+// フェーズ実行
+//==============================
+function runPhase(phase){
+
+    console.log("PHASE:", phase);
+
+    switch(phase){
+
+        case "TITLE":
+            whiteScreen();
+            hideTitle();
+            break;
+
+        case "WHITE1":
+            whiteScreen();
+            break;
+
+        case "BLACK1":
+            blackScreen();
+            break;
+
+        case "WHITE2":
+            whiteScreen();
+            startBreathing();
+            break;
+
+        case "RANDOM":
+            stopBreathing();
+            playBell();
+            startRandomColors();
+            break;
+
+        case "BLACK2":
+            stopRandomColors();
+            blackScreen();
+            playSound1();
+            break;
+
+        case "FINAL":
+            whiteScreen();
+            startRandomSounds();
+            break;
+    }
+}
+
+
+//==============================
+// スタート
+//==============================
+function startPerformance(){
+
+    if(running) return;
+
+    running = true;
+    startTime = Date.now();
+
+    phaseIndex = 0;
+
+    setState("TITLE");
+
+    startScreen.style.display = "none";
+
+    whiteScreen();
+
+    hideTitle();
+
+    rafLoop();
+}
+
+
+//==============================
+// イベント
+//==============================
+
+// キー操作（windowに統一）
+window.addEventListener("keydown", (e) => {
+
+    console.log("KEY:", e.key);
+
+    if(e.key === " " || e.key === "Enter"){
+        e.preventDefault();
+
+        if(!running){
+            startPerformance();
+        } else {
+            nextPhase();
+        }
+    }
+
+    if(e.key === "ArrowLeft"){
+        prevPhase();
+    }
+
+    if(e.key === "r" || e.key === "R"){
+        resetPerformance();
+    }
+
+    if(e.key === "Escape"){
+        emergencyStop();
+    }
+});
+
+
+//==============================
+// ボタン操作
+//==============================
+startButton.addEventListener("click", () => {
+    unlockAudio();
+    startPerformance();
+});
+
+
+//==============================
+// 音ロード
+//==============================
+window.addEventListener("load", () => {
+    initAudio();
+});
